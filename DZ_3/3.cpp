@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <papi.h>
 
 struct CSRGraph {
     int n_vertex;
@@ -79,7 +80,35 @@ int main() {
 
     graph.n_vertex = n_vertex;
 
+    int Eventset = PAPI_NULL, code, retval = PAPI_NULL;
+    long long values[3];
+                
+    PAPI_library_init(PAPI_VER_CURRENT) != PAPI_VER_CURRENT;
+    PAPI_create_eventset(&Eventset);
+
+    PAPI_add_event(Eventset, PAPI_L1_TCM);
+    PAPI_add_event(Eventset, PAPI_L2_TCM);
+    char event_name[] = "perf::PERF_COUNT_HW_CPU_CYCLES";
+    PAPI_event_name_to_code(event_name, &code);
+        
+    PAPI_add_event(Eventset, code);
+        
+    PAPI_start(Eventset);
     std::cout << "Результат по первому алгоритму: " << findMaxWeightVertex(graph) + 1 << "-ая вершина графа" << std::endl;
+    PAPI_stop(Eventset, values);
+    std::cout << "L1 Data Misses: " << values[0] << std::endl;
+    std::cout << "L2 Data Misses: " << values[1] << std::endl;
+    std::cout << "PERF_COUNT_HW_CPU_CYCLES: " << values[2] << std::endl;
+
+    PAPI_reset(Eventset);
+    PAPI_start(Eventset); 
     std::cout << "Результат по второму алгоритму: " << findMaxRankVertex(graph) + 1 << "-ая вершина графа" << std::endl;
+    PAPI_stop(Eventset, values);
+    std::cout << "L1 Data Misses: " << values[0] << std::endl;
+    std::cout << "L2 Data Misses: " << values[1] << std::endl;
+    std::cout << "PERF_COUNT_HW_CPU_CYCLES: " << values[2] << std::endl;
+
+    PAPI_destroy_eventset(&Eventset);
+    PAPI_shutdown();
     return 0;
 }
