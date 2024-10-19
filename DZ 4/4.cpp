@@ -1,16 +1,11 @@
 #include <iostream>
 #include <random>
-#include <sys/time.h>
+#include <chrono>
 #include <immintrin.h> 
 #include <string.h>
-#define N 640
+#define N 2048
 
-double get_time() 
-{
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    return t.tv_sec + t.tv_usec / 1000.0;
-}
+using namespace std::chrono;
 
 void fillMatrix(float *matrix) {
     std::default_random_engine generator;
@@ -48,22 +43,32 @@ void Multiply_vec(const float *A, const float *B, float *C) {
 }
 
 int main() {
-    float A[N * N], B[N * N], C[N * N], D[N * N];
+    float *A = (float *) malloc(sizeof(float) * N * N);
+    float *B = (float *) malloc(sizeof(float) * N * N);
+    float *C = (float *) malloc(sizeof(float) * N * N);
+    float *D = (float *) malloc(sizeof(float) * N * N);
     memset(C, 0, N * N);
     memset(D, 0, N * N);
     fillMatrix(A);
     fillMatrix(B);
 
-    double time_irl = get_time();
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();    
     Multiply_irl(A, B, C);
-    time_irl = get_time() - time_irl;
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double, std::milli> time_span = duration_cast<duration<double, std::milli>>(t2 - t1);
+    std::cout << "Basic Multiply time: " << time_span.count() << " ms" << std::endl;
 
-    double time_vec = get_time();
+    t1 = high_resolution_clock::now();    
     Multiply_vec(A, B, D);
-    time_vec = get_time() - time_vec;
+    t2 = high_resolution_clock::now();
+    time_span = duration_cast<duration<double, std::milli>>(t2 - t1);
+    std::cout << "Vectorized Multiply time: " << time_span.count() << " ms" << std::endl;
 
-    std::cout << "Basic Multiply time: " << time_irl << " ms" << std::endl;
-    std::cout << "Vectorized Multiply time: " << time_vec << " ms" << std::endl;
+    //свободу попугаям !
+    free(A);
+    free(B);
+    free(C);
+    free(D);
 
     return 0;
 }
