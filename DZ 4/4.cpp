@@ -3,7 +3,7 @@
 #include <chrono>
 #include <immintrin.h> 
 #include <string.h>
-#define N 2048
+#define N 512
 
 using namespace std::chrono;
 
@@ -42,6 +42,15 @@ void Multiply_vec(const float *A, const float *B, float *C) {
     }
 }
 
+bool equal_matrices(float* A, float* B, int n) {
+    for (int i = 0; i < n * n; ++i) {
+        if (std::abs(A[i] - B[i]) >= 1e-6) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main() {
     float *A = (float *) malloc(sizeof(float) * N * N);
     float *B = (float *) malloc(sizeof(float) * N * N);
@@ -63,6 +72,9 @@ int main() {
     t2 = high_resolution_clock::now();
     time_span = duration_cast<duration<double, std::milli>>(t2 - t1);
     std::cout << "Vectorized Multiply time: " << time_span.count() << " ms" << std::endl;
+
+    if (!equal_matrices(C, D, N)) std::cerr << "Матрицы C и D не равны!" << std::endl;
+    else std::cout << "Матрицы C и D равны." << std::endl;
 
     //свободу попугаям !
     free(A);
