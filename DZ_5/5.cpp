@@ -47,6 +47,5 @@ int main() {
     std::cout << "Basic time: " << elapsed.count() << " ms" << std::endl;
     std::cout << "Time per dot: " << elapsed.count() / N << " ms" << std::endl;
 
-    delete[] go_random;
     return 0;
 }
