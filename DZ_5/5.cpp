@@ -6,8 +6,9 @@
 #define MAX_STEPS 10000
 
 int main() {
-    int a, b, x, x_tmp, N, i, hits_b=0, stepCount, NUM_THREADS;
+    int a, b, x, x_tmp, N, i, hits_b = 0, stepCount, NUM_THREADS;
     double p;
+    
     std::cout << "Введите начальную и конечную точку" << std::endl;
     std::cin >> a >> b;
     std::cout << "Введите исходную точку и количество частиц" << std::endl;
@@ -17,28 +18,25 @@ int main() {
     std::cout << "Введите количество нитей" << std::endl;
     std::cin >> NUM_THREADS;
 
-    std::random_device generator;
-    std::uniform_real_distribution<double> distribution(0.0, 1.0);
-
-    int size_array = NUM_THREADS * (b - a) * (b - a);
-    double* go_random = new double[size_array];
-    for (i = 0; i < size_array; i++) go_random[i] = distribution(generator);
-
     auto start = std::chrono::system_clock::now();
 
-    #pragma omp parallel num_threads(NUM_THREADS) default(none) private(i, x_tmp, stepCount) shared(N, a, b, x, p, go_random, size_array, NUM_THREADS) reduction(+:hits_b)
+    #pragma omp parallel num_threads(NUM_THREADS) default(none) shared(N, a, b, x, p, NUM_THREADS) reduction(+:hits_b)
     {
-        int id = omp_get_thread_num();
-        for (i = id; i <= N; i += NUM_THREADS)
-        {
+        #pragma omp for private(x_tmp, stepCount)
+        for (i = 0; i < N; ++i) {
+            std::random_device generator;
+            std::uniform_real_distribution<double> distribution(0.0, 1.0);
             x_tmp = x;
             stepCount = 0;
             while (x_tmp != a && x_tmp != b && stepCount <= MAX_STEPS) {
                 stepCount++;
-                if (go_random[i * (1 + id) % size_array] > p) x_tmp += 1;
-                else x_tmp -= 1;
+                if (distribution(generator) > p)
+                    x_tmp += 1;
+                else
+                    x_tmp -= 1;
             }
-            if (x_tmp == b) hits_b++;
+            if (x_tmp == b)
+                hits_b++;
         }
     }
 
