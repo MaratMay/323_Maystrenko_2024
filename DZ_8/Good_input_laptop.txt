@@ -1,9 +1,0 @@
-marat_may@MaratMay:~/cool_prak$ mpicxx test1.cpp -o test -std=c++11
-marat_may@MaratMay:~/cool_prak$ mpirun -np 4 ./test
-Поле 1024 x 1024 случайно заполнено! Начальное количество живых клеток: 210392
-K-ый шаг: 816
-Время выполнения: 5.21333 секунд
-marat_may@MaratMay:~/cool_prak$ mpirun -np 1 ./test
-Поле 1024 x 1024 случайно заполнено! Начальное количество живых клеток: 209410
-K-ый шаг: 459
-Время выполнения: 11.2883 секунд
