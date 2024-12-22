@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 #define N 128 // Сторона куба
-#define ITER 100 // Количество итераций метода Якоби
+#define ITER 100 // Количество итераций метода
 
 void go_random(std::vector<double>& grid, int nx, int ny, int nz) {
     for (int i = 0; i < nx * ny * nz; ++i) {
